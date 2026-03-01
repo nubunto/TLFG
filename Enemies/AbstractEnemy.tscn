@@ -1,0 +1,37 @@
+[gd_scene load_steps=3 format=3 uid="uid://crfrhfjduh4rs"]
+
+[ext_resource type="Script" uid="uid://bacn70rof0di8" path="res://Enemies/abstract_enemy.gd" id="1_h08e0"]
+[ext_resource type="Script" uid="uid://bd8uysgwje2hm" path="res://DamageDealing/hurtbox.gd" id="2_hkmnc"]
+
+[node name="AbstractEnemy" type="CharacterBody2D"]
+collision_layer = 4
+script = ExtResource("1_h08e0")
+
+[node name="Sprite" type="Sprite2D" parent="."]
+offset = Vector2(0, -7)
+hframes = 8
+vframes = 6
+frame = 2
+
+[node name="PlayerSensor" type="Area2D" parent="."]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+
+[node name="ActionTimer" type="Timer" parent="."]
+wait_time = 3.0
+autostart = true
+
+[node name="AnimationPlayer" type="AnimationPlayer" parent="."]
+
+[node name="AnimationTree" type="AnimationTree" parent="."]
+anim_player = NodePath("../AnimationPlayer")
+
+[node name="Hurtbox" type="Area2D" parent="."]
+collision_layer = 16
+collision_mask = 0
+script = ExtResource("2_hkmnc")
+metadata/_custom_type_script = "uid://bd8uysgwje2hm"
+
+[connection signal="body_entered" from="PlayerSensor" to="." method="_on_player_sensor_body_entered"]
+[connection signal="timeout" from="ActionTimer" to="." method="_on_action_timer_timeout"]

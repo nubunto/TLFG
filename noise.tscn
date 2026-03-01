@@ -1,0 +1,19 @@
+[gd_scene load_steps=4 format=3 uid="uid://baxdpb0cn4mgt"]
+
+[ext_resource type="Script" uid="uid://cwt838xe8p6km" path="res://noise.gd" id="1_tr5ve"]
+
+[sub_resource type="FastNoiseLite" id="FastNoiseLite_b6uoa"]
+noise_type = 0
+seed = 1200
+
+[sub_resource type="NoiseTexture2D" id="NoiseTexture2D_2wxj1"]
+width = 128
+height = 128
+noise = SubResource("FastNoiseLite_b6uoa")
+
+[node name="Node2D" type="Node2D"]
+script = ExtResource("1_tr5ve")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+scale = Vector2(10, 10)
+texture = SubResource("NoiseTexture2D_2wxj1")

@@ -1,0 +1,53 @@
+[gd_scene load_steps=6 format=3 uid="uid://b5rbjydyviv44"]
+
+[ext_resource type="Script" uid="uid://bqh5svhb7g28k" path="res://Characters/Archer/arrow_hit_effect.gd" id="1_j40gw"]
+
+[sub_resource type="CanvasItemMaterial" id="CanvasItemMaterial_j40gw"]
+particles_animation = true
+particles_anim_h_frames = 1
+particles_anim_v_frames = 1
+particles_anim_loop = false
+
+[sub_resource type="Gradient" id="Gradient_j40gw"]
+offsets = PackedFloat32Array(0, 0.1013986, 0.37412587, 1)
+colors = PackedColorArray(0, 0, 0, 1, 0.040018376, 0.040018376, 0.040018376, 1, 0.7832168, 0.7832168, 0.7832168, 1, 1, 1, 1, 1)
+
+[sub_resource type="GradientTexture1D" id="GradientTexture1D_dlku3"]
+gradient = SubResource("Gradient_j40gw")
+
+[sub_resource type="ParticleProcessMaterial" id="ParticleProcessMaterial_j40gw"]
+lifetime_randomness = 0.4
+particle_flag_align_y = true
+particle_flag_disable_z = true
+angle_min = -44.99999
+angle_max = 45.00001
+initial_velocity_min = 20.0
+initial_velocity_max = 100.0
+orbit_velocity_min = 9.49949e-08
+orbit_velocity_max = 9.49949e-08
+radial_velocity_min = 3.4499776
+radial_velocity_max = 3.4499776
+gravity = Vector3(0, -1, 0)
+linear_accel_min = 0.99999774
+linear_accel_max = 4.9999976
+scale_over_velocity_max = 1.0
+color = Color(1, 0.26000598, 0.2008352, 1)
+color_ramp = SubResource("GradientTexture1D_dlku3")
+hue_variation_min = -2.2351742e-08
+hue_variation_max = 0.09999997
+anim_speed_min = 5.0
+anim_speed_max = 10.0
+
+[node name="Effect" type="GPUParticles2D"]
+top_level = true
+material = SubResource("CanvasItemMaterial_j40gw")
+emitting = false
+amount = 20
+lifetime = 0.8
+one_shot = true
+explosiveness = 1.0
+trail_lifetime = 1.0
+process_material = SubResource("ParticleProcessMaterial_j40gw")
+script = ExtResource("1_j40gw")
+
+[connection signal="finished" from="." to="." method="_on_finished"]

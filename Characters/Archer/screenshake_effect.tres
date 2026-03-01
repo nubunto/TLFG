@@ -1,0 +1,9 @@
+[gd_resource type="Resource" script_class="ScreenshakeEffect" load_steps=3 format=3 uid="uid://dri2ikxhkolip"]
+
+[ext_resource type="Script" uid="uid://ba1jmw3v0ec0g" path="res://Characters/Archer/screenshake_effect.gd" id="1_8uy24"]
+[ext_resource type="Resource" uid="uid://dooc4ehboftik" path="res://WorldEventBus.tres" id="1_kygeb"]
+
+[resource]
+script = ExtResource("1_8uy24")
+event_bus = ExtResource("1_kygeb")
+metadata/_custom_type_script = "uid://ba1jmw3v0ec0g"

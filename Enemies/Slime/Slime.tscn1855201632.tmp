@@ -1,0 +1,75 @@
+[gd_scene load_steps=14 format=3 uid="uid://ibejm0lvuwsl"]
+
+[ext_resource type="PackedScene" uid="uid://crfrhfjduh4rs" path="res://Enemies/AbstractEnemy.tscn" id="1_hsbk2"]
+[ext_resource type="Texture2D" uid="uid://yle4tbvbgoy3" path="res://assets/Characters(100x100)/Slime/Slime/Slime.png" id="2_0ae7n"]
+[ext_resource type="Script" uid="uid://bnlkkie83mhf3" path="res://Enemies/Slime/slime.gd" id="2_mjfjn"]
+[ext_resource type="AnimationLibrary" uid="uid://csqv8n06eear0" path="res://Enemies/Slime/SlimeAnimations.res" id="3_wyclx"]
+
+[sub_resource type="Animation" id="Animation_wyclx"]
+length = 0.001
+tracks/0/type = "value"
+tracks/0/imported = false
+tracks/0/enabled = true
+tracks/0/path = NodePath("Sprite:frame")
+tracks/0/interp = 1
+tracks/0/loop_wrap = true
+tracks/0/keys = {
+"times": PackedFloat32Array(0),
+"transitions": PackedFloat32Array(1),
+"update": 1,
+"values": [0]
+}
+
+[sub_resource type="AnimationLibrary" id="AnimationLibrary_mjfjn"]
+_data = {
+&"RESET": SubResource("Animation_wyclx")
+}
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_mjfjn"]
+animation = &"Slime/idle"
+
+[sub_resource type="AnimationNodeAnimation" id="AnimationNodeAnimation_qsqqn"]
+animation = &"Slime/walk_cycle"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_qsqqn"]
+advance_mode = 2
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_2osmb"]
+advance_mode = 2
+advance_expression = "is_moving()"
+
+[sub_resource type="AnimationNodeStateMachineTransition" id="AnimationNodeStateMachineTransition_mjfjn"]
+advance_mode = 2
+advance_expression = "!is_moving()"
+
+[sub_resource type="AnimationNodeStateMachine" id="AnimationNodeStateMachine_0ae7n"]
+states/Slime_idle/node = SubResource("AnimationNodeAnimation_mjfjn")
+states/Slime_idle/position = Vector2(407, 106)
+states/Slime_walk_cycle/node = SubResource("AnimationNodeAnimation_qsqqn")
+states/Slime_walk_cycle/position = Vector2(407, 229)
+transitions = ["Start", "Slime_idle", SubResource("AnimationNodeStateMachineTransition_qsqqn"), "Slime_idle", "Slime_walk_cycle", SubResource("AnimationNodeStateMachineTransition_2osmb"), "Slime_walk_cycle", "Slime_idle", SubResource("AnimationNodeStateMachineTransition_mjfjn")]
+graph_offset = Vector2(-623, -33)
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_mjfjn"]
+size = Vector2(18, 7)
+
+[node name="Slime" instance=ExtResource("1_hsbk2")]
+script = ExtResource("2_mjfjn")
+
+[node name="Sprite" parent="." index="0"]
+texture = ExtResource("2_0ae7n")
+hframes = 12
+frame = 0
+
+[node name="AnimationPlayer" parent="." index="3"]
+libraries = {
+&"": SubResource("AnimationLibrary_mjfjn"),
+&"Slime": ExtResource("3_wyclx")
+}
+
+[node name="AnimationTree" parent="." index="4"]
+tree_root = SubResource("AnimationNodeStateMachine_0ae7n")
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="." index="5"]
+position = Vector2(0, -4)
+shape = SubResource("RectangleShape2D_mjfjn")

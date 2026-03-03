@@ -8,6 +8,7 @@
 [ext_resource type="AnimationLibrary" uid="uid://csnooxf026gfi" path="res://Characters/Archer/ArcherAnimations.res" id="4_qhopr"]
 [ext_resource type="Script" uid="uid://cghc0essxi7ck" path="res://Characters/character_effect.gd" id="5_dbcwn"]
 [ext_resource type="PackedScene" uid="uid://ca26gxwucbn73" path="res://dust_effect.tscn" id="6_6dxku"]
+[ext_resource type="AudioStream" uid="uid://cjmwv1mg8n105" path="res://assets/music_and_sounds/swishes/swish-1.wav" id="9_6dxku"]
 
 [sub_resource type="Resource" id="Resource_hc8xo"]
 script = ExtResource("4_epyn6")
@@ -36,18 +37,6 @@ tracks/0/keys = {
 "transitions": PackedFloat32Array(1),
 "update": 1,
 "values": [13]
-}
-tracks/1/type = "value"
-tracks/1/imported = false
-tracks/1/enabled = true
-tracks/1/path = NodePath("AudioStreamPlayer2D:pitch_scale")
-tracks/1/interp = 1
-tracks/1/loop_wrap = true
-tracks/1/keys = {
-"times": PackedFloat32Array(0),
-"transitions": PackedFloat32Array(1),
-"update": 0,
-"values": [1.0]
 }
 
 [sub_resource type="AnimationLibrary" id="AnimationLibrary_hc8xo"]
@@ -137,7 +126,7 @@ states/normal_attack/position = Vector2(154, 206)
 states/walk-cycle/node = SubResource("AnimationNodeAnimation_i3pqv")
 states/walk-cycle/position = Vector2(453, 206)
 transitions = ["Start", "idle", SubResource("AnimationNodeStateMachineTransition_2hs0m"), "idle", "walk-cycle", SubResource("AnimationNodeStateMachineTransition_hqtel"), "walk-cycle", "idle", SubResource("AnimationNodeStateMachineTransition_i3pqv"), "idle", "dead", SubResource("AnimationNodeStateMachineTransition_qhopr"), "idle", "hurt", SubResource("AnimationNodeStateMachineTransition_vgu3e"), "idle", "normal_attack", SubResource("AnimationNodeStateMachineTransition_epyn6"), "normal_attack", "idle", SubResource("AnimationNodeStateMachineTransition_33qgn"), "hurt", "idle", SubResource("AnimationNodeStateMachineTransition_hc8xo"), "walk-cycle", "normal_attack", SubResource("AnimationNodeStateMachineTransition_dbcwn"), "normal_attack", "walk-cycle", SubResource("AnimationNodeStateMachineTransition_6dxku"), "idle", "Archer_jump", SubResource("AnimationNodeStateMachineTransition_gqcut"), "Archer_jump", "idle", SubResource("AnimationNodeStateMachineTransition_1eqtu")]
-graph_offset = Vector2(-579, -91)
+graph_offset = Vector2(34.359707, 29.719963)
 
 [node name="Archer" unique_id=1481266576 instance=ExtResource("1_baall")]
 script = ExtResource("2_qhopr")
@@ -155,7 +144,6 @@ vframes = 6
 frame = 13
 
 [node name="CollisionShape2D" type="CollisionShape2D" parent="." index="3" unique_id=971633786]
-visible = false
 position = Vector2(0, -7)
 shape = SubResource("CapsuleShape2D_xtc57")
 
@@ -178,6 +166,7 @@ position = Vector2(-16, 0)
 target_position = Vector2(24, 0)
 
 [node name="AudioStreamPlayer2D" type="AudioStreamPlayer2D" parent="." index="7" unique_id=1637627050]
+stream = ExtResource("9_6dxku")
 max_distance = 10000000.0
 
 [connection signal="animation_finished" from="AnimationPlayer" to="." method="_on_animation_player_animation_finished"]

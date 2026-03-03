@@ -1,0 +1,37 @@
+class_name MovementStats
+extends Resource
+
+@export_group("Ground movement")
+@export var ground_horizontal_speed: float
+@export var ground_friction: float
+@export var ground_acceleration: float
+
+@export_group("Dash")
+@export var dash_speed: float
+@export var dash_time: float
+
+@export_group("Air")
+@export var air_friction: float
+@export var air_max_speed: float
+@export var air_acceleration: float
+
+@export_group("Jump")
+@export var jump_height: float
+@export var time_to_apex: float
+@export var gravity_up_mult: float
+@export var gravity_down_mult: float
+@export var fastfall_mult: float
+@export var fall_gravity_mult: float
+@export var jump_cut_mult: float
+
+var gravity_up: float
+var gravity_down: float
+var jump_speed: float
+
+func compute_jump_values() -> void:
+	gravity_up = (2.0 * jump_height) / (time_to_apex * time_to_apex)
+	jump_speed = gravity_up * time_to_apex
+	gravity_down = gravity_up * fall_gravity_mult
+	
+	print({"gravity_up": gravity_up, "jump_speed": jump_speed, "gravity_down": gravity_down})
+	

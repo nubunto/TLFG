@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://bghanwkpn80wc" path="res://Game/movement_stats.gd" id="2_mx781"]
 [ext_resource type="PackedScene" uid="uid://djpospxogx43i" path="res://Game/Hitbox.tscn" id="3_1wvhu"]
 [ext_resource type="Script" uid="uid://g1ffjnlypcta" path="res://Game/combat_stats.gd" id="3_dehos"]
+[ext_resource type="PackedScene" uid="uid://cqv4sxw0ort8w" path="res://Game/FighterAMesh.tscn" id="5_101xu"]
 
 [sub_resource type="Resource" id="Resource_1wvhu"]
 script = ExtResource("2_mx781")
@@ -15,10 +16,11 @@ dash_time = 0.15
 air_friction = 2.0
 air_max_speed = 7.0
 air_acceleration = 8.0
+ledge_assist_speed = 8.0
 jump_height = 2.5
 time_to_apex = 0.4
-gravity_up_mult = 0.7
-gravity_down_mult = 1.2
+gravity_up_mult = 1.0
+gravity_down_mult = 0.7
 fastfall_mult = 1.8
 fall_gravity_mult = 1.2
 jump_cut_mult = 0.45
@@ -28,51 +30,59 @@ metadata/_custom_type_script = "uid://bghanwkpn80wc"
 script = ExtResource("3_dehos")
 metadata/_custom_type_script = "uid://g1ffjnlypcta"
 
-[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_spths"]
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_101xu"]
+radius = 0.07324219
+height = 0.76000977
 
-[sub_resource type="CapsuleMesh" id="CapsuleMesh_e6t6r"]
-
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_e6t6r"]
-albedo_color = Color(1, 0.4392157, 0.9843137, 1)
-
-[sub_resource type="SphereShape3D" id="SphereShape3D_mx781"]
-radius = 0.34
-
-[sub_resource type="SphereShape3D" id="SphereShape3D_1wvhu"]
-radius = 0.8
+[sub_resource type="CylinderShape3D" id="CylinderShape3D_101xu"]
+height = 1.463047
+radius = 0.30273438
 
 [node name="Player1" type="CharacterBody3D" unique_id=1787320418]
 collision_layer = 2
+collision_mask = 5
 script = ExtResource("1_v07n3")
-ground_normal_threshold = 0.3
+ground_normal_threshold = 0.45
 movement_stats = SubResource("Resource_1wvhu")
 combat_stats = SubResource("Resource_101xu")
 
-[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=986476799]
-shape = SubResource("CapsuleShape3D_spths")
-debug_color = Color(0.64360994, 0.0010240298, 0.7582128, 1)
+[node name="ModelPivot" type="Node3D" parent="." unique_id=1398399162]
 
-[node name="MeshInstance3D" type="MeshInstance3D" parent="." unique_id=1395661891]
-mesh = SubResource("CapsuleMesh_e6t6r")
-surface_material_override/0 = SubResource("StandardMaterial3D_e6t6r")
+[node name="Model" parent="ModelPivot" unique_id=58839265 instance=ExtResource("5_101xu")]
+transform = Transform3D(2, 0, 0, 0, 2, 0, 0, 0, 2, 0, -0.69193614, 0)
+
+[node name="Hitbox" parent="ModelPivot" unique_id=385731670 instance=ExtResource("3_1wvhu")]
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, -0.02453351, 0.39020753)
+knockback_direction = Vector3(0, 0.5, 1)
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="ModelPivot/Hitbox" unique_id=1378841717]
+transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0.3687744, 0)
+shape = SubResource("CapsuleShape3D_101xu")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="." unique_id=986476799]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.04138261, 0)
+shape = SubResource("CylinderShape3D_101xu")
+debug_color = Color(0.64360994, 0.0010240298, 0.7582128, 1)
 
 [node name="Detectors" type="Node3D" parent="." unique_id=1502553144]
 
-[node name="GroundDetector" type="ShapeCast3D" parent="Detectors" unique_id=942371348]
-shape = SubResource("SphereShape3D_mx781")
-target_position = Vector3(0, -0.85, 0)
+[node name="BackFeet" type="RayCast3D" parent="Detectors" unique_id=1624298815]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.2998456, -0.63779885, 0)
+target_position = Vector3(0, -0.25, 0)
+collision_mask = 5
+
+[node name="CenterFeet" type="RayCast3D" parent="Detectors" unique_id=1146440035]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0030290484, -0.63779885, 0)
+target_position = Vector3(0, -0.25, 0)
+collision_mask = 5
+
+[node name="RightFeet" type="RayCast3D" parent="Detectors" unique_id=1116490347]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.2912503, -0.63779885, 0)
+target_position = Vector3(0, -0.25, 0)
+collision_mask = 5
 
 [node name="Timers" type="Node" parent="." unique_id=1799900618]
 
 [node name="JumpTimer" type="Timer" parent="Timers" unique_id=694768157]
 wait_time = 0.2
 one_shot = true
-
-[node name="DebugText" type="Label3D" parent="." unique_id=844773993]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.1606708, 0)
-text = "Debug Text"
-
-[node name="Hitbox" parent="." unique_id=385731670 instance=ExtResource("3_1wvhu")]
-
-[node name="CollisionShape3D" type="CollisionShape3D" parent="Hitbox" unique_id=1378841717]
-shape = SubResource("SphereShape3D_1wvhu")

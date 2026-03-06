@@ -5,3 +5,4 @@ extends Resource
 @export var right_action: String
 @export var jump_action: String
 @export var attack_action: String
+@export var down_action: String

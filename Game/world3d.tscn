@@ -4,6 +4,7 @@
 [ext_resource type="Script" uid="uid://bghanwkpn80wc" path="res://Game/movement_stats.gd" id="2_hk4ix"]
 [ext_resource type="Script" uid="uid://bwg2hksq43ewn" path="res://Game/player_input.gd" id="3_djclg"]
 [ext_resource type="Script" uid="uid://g1ffjnlypcta" path="res://Game/combat_stats.gd" id="4_77ass"]
+[ext_resource type="Script" uid="uid://ck7y4y0rajyqc" path="res://Game/input_buffer.gd" id="4_l2uqb"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_e6t6r"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -21,6 +22,16 @@ glow_enabled = true
 [sub_resource type="StandardMaterial3D" id="StandardMaterial3D_spths"]
 albedo_color = Color(1, 0.43529412, 0.33333334, 1)
 
+[sub_resource type="BoxMesh" id="BoxMesh_hk4ix"]
+size = Vector3(3, 0.6, 1)
+
+[sub_resource type="ConvexPolygonShape3D" id="ConvexPolygonShape3D_hk4ix"]
+points = PackedVector3Array(1.5235113, 0.34285712, 0.52380955, -1.4146891, -0.29999998, -0.48639458, -1.5235113, 0.34285712, -0.52380955, -1.5235113, 0.34285712, 0.52380955, 1.5235113, 0.34285712, -0.52380955, 1.4146891, -0.29999998, 0.48639458, 1.4146891, -0.29999998, -0.48639458, -1.4146891, -0.29999998, 0.48639458)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_77ass"]
+margin = 0.002
+size = Vector3(2.9941406, 0.01, 1)
+
 [sub_resource type="Resource" id="Resource_l2uqb"]
 script = ExtResource("2_hk4ix")
 ground_horizontal_speed = 10.0
@@ -32,9 +43,9 @@ air_friction = 2.0
 air_max_speed = 7.0
 air_acceleration = 8.0
 jump_height = 4.0
-time_to_apex = 0.4
-gravity_up_mult = 0.7
-gravity_down_mult = 1.2
+time_to_apex = 0.5
+gravity_up_mult = 1.0
+gravity_down_mult = 1.0
 fastfall_mult = 1.8
 fall_gravity_mult = 1.2
 jump_cut_mult = 0.45
@@ -46,7 +57,13 @@ left_action = "p1_move_left"
 right_action = "p1_move_right"
 jump_action = "p1_jump"
 attack_action = "p1_attack"
+down_action = "p1_down"
 metadata/_custom_type_script = "uid://bwg2hksq43ewn"
+
+[sub_resource type="Resource" id="Resource_52ge5"]
+script = ExtResource("4_l2uqb")
+BUFFER_WINDOW_MS = 90
+metadata/_custom_type_script = "uid://ck7y4y0rajyqc"
 
 [sub_resource type="Resource" id="Resource_eh1or"]
 script = ExtResource("4_77ass")
@@ -58,10 +75,13 @@ left_action = "p2_move_left"
 right_action = "p2_move_right"
 jump_action = "p2_jump"
 attack_action = "p2_attack"
+down_action = "p2_down"
 metadata/_custom_type_script = "uid://bwg2hksq43ewn"
 
-[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_pdrcu"]
-albedo_color = Color(0, 0.5764706, 1, 1)
+[sub_resource type="Resource" id="Resource_77ass"]
+script = ExtResource("4_l2uqb")
+BUFFER_WINDOW_MS = 90
+metadata/_custom_type_script = "uid://ck7y4y0rajyqc"
 
 [node name="World3d" type="Node3D" unique_id=532126966]
 
@@ -72,6 +92,13 @@ environment = SubResource("Environment_djclg")
 transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
 shadow_enabled = true
 
+[node name="Pivot" type="Node3D" parent="." unique_id=442993306]
+transform = Transform3D(1, 0, 0, 0, 0.9251501, 0.37960148, 0, -0.37960148, 0.9251501, 0, 4.3176355, 7.1590996)
+
+[node name="Camera3D" type="Camera3D" parent="Pivot" unique_id=905416193]
+transform = Transform3D(1, 0, 0, 0, 0.97438204, -0.22490008, 0, 0.22490008, 0.97438204, 0, -1.1993039, -1.7725239)
+current = true
+
 [node name="RootLevel" type="CSGBox3D" parent="." unique_id=131446795]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.3, 0)
 material_override = SubResource("StandardMaterial3D_spths")
@@ -79,31 +106,41 @@ use_collision = true
 collision_mask = 0
 size = Vector3(25, 0.6, 5)
 
-[node name="CSGBox3D" type="CSGBox3D" parent="RootLevel" unique_id=1140987334]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -6, 3, 0)
-size = Vector3(3, 1, 2)
+[node name="StaticBody3D" type="StaticBody3D" parent="RootLevel" unique_id=1260869983]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -7.1832438, 2.6635785, 0)
+collision_layer = 4
+collision_mask = 0
 
-[node name="CSGBox3D2" type="CSGBox3D" parent="RootLevel" unique_id=322568449]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.421, 3, 0)
-size = Vector3(3, 1, 2)
+[node name="MeshInstance3D" type="MeshInstance3D" parent="RootLevel/StaticBody3D" unique_id=343810445]
+mesh = SubResource("BoxMesh_hk4ix")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RootLevel/StaticBody3D" unique_id=1073943773]
+shape = SubResource("ConvexPolygonShape3D_hk4ix")
+
+[node name="StaticBody3D2" type="StaticBody3D" parent="RootLevel" unique_id=311261825]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6.2443495, 2.6635785, 0)
+collision_layer = 4
+collision_mask = 0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="RootLevel/StaticBody3D2" unique_id=549877955]
+mesh = SubResource("BoxMesh_hk4ix")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="RootLevel/StaticBody3D2" unique_id=92512593]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0009765625, 0.2954626, 0)
+shape = SubResource("BoxShape3D_77ass")
 
 [node name="Player1" parent="." unique_id=1787320418 instance=ExtResource("1_e6t6r")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.6433811, 0)
+wall_normal_threshold = 0.7
+initial_direction = Vector3(1, 0, 0)
 movement_stats = SubResource("Resource_l2uqb")
 input_config = SubResource("Resource_djclg")
+input_buffer = SubResource("Resource_52ge5")
 
 [node name="Player2" parent="." unique_id=1573789248 instance=ExtResource("1_e6t6r")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.6377153, 1.6433811, 0)
 combat_stats = SubResource("Resource_eh1or")
 input_config = SubResource("Resource_hk4ix")
-
-[node name="MeshInstance3D" parent="Player2" index="1" unique_id=1395661891]
-material_override = SubResource("StandardMaterial3D_pdrcu")
-
-[node name="Pivot" type="Node3D" parent="." unique_id=442993306]
-transform = Transform3D(1, 0, 0, 0, 0.9251501, 0.37960148, 0, -0.37960148, 0.9251501, 0, 4.8526907, 7.49365)
-
-[node name="Camera3D" type="Camera3D" parent="Pivot" unique_id=905416193]
-current = true
+input_buffer = SubResource("Resource_77ass")
 
 [editable path="Player2"]

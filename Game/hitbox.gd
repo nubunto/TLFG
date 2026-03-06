@@ -31,4 +31,6 @@ func _on_body_entered(body: Node3D):
 	print("HIT:", body.name)
 	if body.has_method("apply_knockback"):
 		already_hit[body.get_instance_id()] = true
-		body.apply_knockback(knockback_direction, damage)
+		var attacker_yaw = owner.model_pivot.rotation.y
+		var rotated_direction = knockback_direction.rotated(Vector3.UP, attacker_yaw)
+		body.apply_knockback(rotated_direction, damage)

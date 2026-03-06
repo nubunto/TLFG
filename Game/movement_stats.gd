@@ -14,6 +14,7 @@ extends Resource
 @export var air_friction: float
 @export var air_max_speed: float
 @export var air_acceleration: float
+@export var ledge_assist_speed: float
 
 @export_group("Jump")
 @export var jump_height: float

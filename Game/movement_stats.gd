@@ -28,6 +28,9 @@ extends Resource
 @export_group("Hit stun")
 @export var hitstun_gravity: float
 
+@export_group("Platdrop")
+@export var min_platdrop_frames: int = 15
+
 var gravity_up: float
 var gravity_down: float
 var jump_speed: float

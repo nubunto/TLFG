@@ -1,7 +1,0 @@
-[gd_resource type="Resource" script_class="EventBus" load_steps=2 format=3 uid="uid://dooc4ehboftik"]
-
-[ext_resource type="Script" uid="uid://ddtguv76gsgm0" path="res://event_bus.gd" id="1_cr73r"]
-
-[resource]
-script = ExtResource("1_cr73r")
-metadata/_custom_type_script = "uid://ddtguv76gsgm0"

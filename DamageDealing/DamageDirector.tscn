@@ -1,6 +1,0 @@
-[gd_scene load_steps=2 format=3 uid="uid://56xkungb4tpa"]
-
-[ext_resource type="Script" uid="uid://ytgmkqyr21m5" path="res://DamageDealing/damage_director.gd" id="1_q8gy7"]
-
-[node name="DamageDirector" type="Node"]
-script = ExtResource("1_q8gy7")

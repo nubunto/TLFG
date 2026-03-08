@@ -1,10 +1,12 @@
 [gd_scene format=3 uid="uid://odpwduel6f3t"]
 
 [ext_resource type="PackedScene" uid="uid://dwottcd5b4cw4" path="res://Game/player_3d.tscn" id="1_e6t6r"]
+[ext_resource type="Script" uid="uid://b28bmy174yujo" path="res://Game/world_3d.gd" id="1_eh1or"]
 [ext_resource type="Script" uid="uid://bghanwkpn80wc" path="res://Game/movement_stats.gd" id="2_hk4ix"]
 [ext_resource type="Script" uid="uid://bwg2hksq43ewn" path="res://Game/player_input.gd" id="3_djclg"]
 [ext_resource type="Script" uid="uid://g1ffjnlypcta" path="res://Game/combat_stats.gd" id="4_77ass"]
 [ext_resource type="Script" uid="uid://ck7y4y0rajyqc" path="res://Game/input_buffer.gd" id="4_l2uqb"]
+[ext_resource type="Script" uid="uid://beuc4nuwj4pvr" path="res://Game/Blastzone.gd" id="6_l2uqb"]
 
 [sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_e6t6r"]
 sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
@@ -49,6 +51,7 @@ gravity_down_mult = 1.0
 fastfall_mult = 2.5
 fall_gravity_mult = 1.2
 shorthop_mult = 0.75
+hitstun_gravity = 1.2
 metadata/_custom_type_script = "uid://bghanwkpn80wc"
 
 [sub_resource type="Resource" id="Resource_8mcj8"]
@@ -66,7 +69,6 @@ metadata/_custom_type_script = "uid://bwg2hksq43ewn"
 
 [sub_resource type="Resource" id="Resource_52ge5"]
 script = ExtResource("4_l2uqb")
-BUFFER_WINDOW_MS = 90
 metadata/_custom_type_script = "uid://ck7y4y0rajyqc"
 
 [sub_resource type="Resource" id="Resource_eh1or"]
@@ -86,6 +88,8 @@ gravity_down_mult = 1.3
 fastfall_mult = 2.5
 fall_gravity_mult = 1.0
 shorthop_mult = 0.75
+hitstun_gravity = 1.2
+min_platdrop_frames = 25
 metadata/_custom_type_script = "uid://bghanwkpn80wc"
 
 [sub_resource type="Resource" id="Resource_1ahoi"]
@@ -104,10 +108,10 @@ metadata/_custom_type_script = "uid://bwg2hksq43ewn"
 
 [sub_resource type="Resource" id="Resource_77ass"]
 script = ExtResource("4_l2uqb")
-BUFFER_WINDOW_MS = 90
 metadata/_custom_type_script = "uid://ck7y4y0rajyqc"
 
 [node name="World3d" type="Node3D" unique_id=532126966]
+script = ExtResource("1_eh1or")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=922448749]
 environment = SubResource("Environment_djclg")
@@ -155,7 +159,7 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0009765625, 0.2954626, 0)
 shape = SubResource("BoxShape3D_77ass")
 
 [node name="Player1" parent="." unique_id=1787320418 instance=ExtResource("1_e6t6r")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.405, 0)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.8167946, 1.405, 0)
 wall_normal_threshold = 0.7
 initial_direction = Vector3(1, 0, 0)
 movement_stats = SubResource("Resource_l2uqb")
@@ -163,15 +167,24 @@ combat_stats = SubResource("Resource_8mcj8")
 input_config = SubResource("Resource_djclg")
 input_buffer = SubResource("Resource_52ge5")
 
-[node name="Player2" parent="." unique_id=1269323241 instance=ExtResource("1_e6t6r")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.447, 0)
+[node name="Player2" parent="." unique_id=1179357575 instance=ExtResource("1_e6t6r")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.638515, 1.447, 0)
 movement_stats = SubResource("Resource_eh1or")
 combat_stats = SubResource("Resource_1ahoi")
 input_config = SubResource("Resource_hk4ix")
 input_buffer = SubResource("Resource_77ass")
 
-[node name="armature" parent="Player2/ModelPivot/ModelMesh/root/armature/Skeleton3D" parent_id_path=PackedInt32Array(1269323241, 1557838654, 896245285) index="0" unique_id=950318345]
+[node name="armature" parent="Player2/ModelPivot/ModelMesh/root/armature/Skeleton3D" parent_id_path=PackedInt32Array(1179357575, 1355208144, 1461438533) index="0" unique_id=198482760]
 material_override = null
+
+[node name="Blastzone" type="Node3D" parent="." unique_id=83260460]
+script = ExtResource("6_l2uqb")
+half_width = 40.0
+half_height = 20.0
+ko_margin = 4.0
+
+[node name="SpawnPoint" type="Marker3D" parent="." unique_id=860391211]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.363641, 0)
 
 [editable path="Player2"]
 [editable path="Player2/ModelPivot/ModelMesh"]

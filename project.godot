@@ -19,10 +19,6 @@ run/main_scene="uid://odpwduel6f3t"
 config/features=PackedStringArray("4.6", "Forward Plus")
 config/icon="res://icon.svg"
 
-[autoload]
-
-DamageDirector="*res://DamageDealing/DamageDirector.tscn"
-
 [display]
 
 window/size/viewport_width=380

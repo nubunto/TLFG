@@ -8,7 +8,7 @@ extends Resource
 
 @export_group("Dash")
 @export var dash_speed: float
-@export var dash_time: float
+@export var dash_time_frames: float
 
 @export_group("Air")
 @export var air_friction: float
@@ -23,7 +23,10 @@ extends Resource
 @export var gravity_down_mult: float
 @export var fastfall_mult: float
 @export var fall_gravity_mult: float
-@export var jump_cut_mult: float
+@export var shorthop_mult: float
+
+@export_group("Hit stun")
+@export var hitstun_gravity: float
 
 var gravity_up: float
 var gravity_down: float
@@ -34,5 +37,5 @@ func compute_jump_values() -> void:
 	jump_speed = gravity_up * time_to_apex
 	gravity_down = gravity_up * fall_gravity_mult
 	
-	print({"gravity_up": gravity_up, "jump_speed": jump_speed, "gravity_down": gravity_down})
+	print({"gravity_up": gravity_up, "jump_speed": jump_speed, "short_hop": jump_speed * shorthop_mult, "gravity_down": gravity_down})
 	

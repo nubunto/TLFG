@@ -2,14 +2,14 @@
 
 importer="texture"
 type="CompressedTexture2D"
-uid="uid://b5wcttk3mmj0q"
+uid="uid://bk3hcnlg283px"
 path.s3tc="res://.godot/imported/FighterA_0.png-23fc6dacb84daa33cfd1598a4db2736b.s3tc.ctex"
 metadata={
 "imported_formats": ["s3tc_bptc"],
 "vram_texture": true
 }
 generator_parameters={
-"md5": "e19ec31e1e95b66b962c14fd92ab1776"
+"md5": "a6ada41402cad54407f30a7d9a08f7f6"
 }
 
 [deps]

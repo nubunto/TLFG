@@ -2,9 +2,20 @@ extends CharacterBody3D
 
 const PLATFORM_LAYER = 3
 
+const MIN_HITSTUN_FRAMES = 5
+const BASE_TARGET_FPS = 60.0
+const JUMPSQUAT_FRAMES = 4
+const PLATDROP_FRAMES = 15
+
+func create_base_timer(num_frames: float) -> float:
+	return num_frames / BASE_TARGET_FPS
+
 enum State {
 	IDLE,
 	DASH,
+	HITSTUN,
+	JUMPSQUAT,
+	PLATDROP,
 }
 
 @export var ground_normal_threshold: float
@@ -17,7 +28,8 @@ enum State {
 
 @onready var model_pivot: Node3D = $ModelPivot
 @onready var jump_timer: Timer = $Timers/JumpTimer
-@onready var hitbox: Hitbox3D = $ModelPivot/Hitbox
+@onready var kill_hitbox: Hitbox3D = $ModelPivot/Kill
+@onready var utilt_hitbox: Hitbox3D = $ModelPivot/Utilt
 
 @onready var back_feet: RayCast3D = $Detectors/BackFeet
 @onready var center_feet: RayCast3D = $Detectors/CenterFeet
@@ -26,7 +38,6 @@ enum State {
 var detectors: Array[RayCast3D]
 
 var current_state: State = State.IDLE
-var hitstun_timer: float = 0.0
 var was_on_floor: bool = false
 var is_beside_platform: bool = false
 
@@ -45,6 +56,19 @@ var dash_direction: int = 0
 var dash_timer: float = 0
 #endregion
 
+#region HITSTUN variables
+var hitstun_timer: float = 0.0
+#endregion
+
+#region JUMPSQUAT variables
+var jumpsquat_timer: float = 0.0
+var is_shorthopping := false
+#endregion
+
+#region PLATDROP variables
+var platdrop_timer: float = 0.0
+#endregion
+
 #region combat variables
 var percent: float = 0.0
 var current_stocks: int
@@ -55,24 +79,23 @@ func _ready() -> void:
 	movement_stats.compute_jump_values()
 	current_stocks = combat_stats.stocks
 	detectors = [back_feet, center_feet, right_feet]
+	kill_hitbox.add_exception(self)
+	utilt_hitbox.add_exception(self)
 	correct_mesh_orientation(initial_direction)
 
 func _unhandled_input(event: InputEvent) -> void:
-	if event.is_action(input_config.down_action):
-		input_buffer.press(input_config.down_action)
-	if event.is_action(input_config.jump_action):
+	if event.is_action_pressed(input_config.jump_action):
 		input_buffer.press(input_config.jump_action)
+	if event.is_action_released(input_config.jump_action):
+		input_buffer.press("release %s".format([input_config.jump_action]))
+	if event.is_action_pressed(input_config.down_action):
+		input_buffer.press(input_config.down_action)
 
 func _physics_process(delta: float) -> void:
 	is_beside_platform = false
 	correct_mesh_orientation(velocity)
 	apply_platform_handling()
 	apply_landing()
-	if hitstun_timer > 0:
-		hitstun_timer -= delta
-		apply_gravity(delta)
-		apply_slide(delta)
-		return
 
 	var input_dir := Input.get_action_strength(input_config.right_action) - Input.get_action_strength(input_config.left_action)
 	match current_state:
@@ -80,13 +103,24 @@ func _physics_process(delta: float) -> void:
 			idle_state(input_dir)
 			try_attack()
 			try_fastfall()
+			try_platdrop()
 			handle_movement(input_dir, delta)
 		State.DASH:
 			dash_state(input_dir, delta)
 			try_attack()
 			try_jump()
+			try_platdrop()
 			apply_gravity(delta)
 			apply_slide(delta)
+		State.JUMPSQUAT:
+			jumpsquat_state(input_dir, delta)
+		State.PLATDROP:
+			platdrop_state(input_dir, delta)
+			apply_gravity(delta)
+			apply_slide(delta)
+		State.HITSTUN:
+			hitstun_state(input_dir, delta)
+			apply_hitstun_gravity(delta)
 
 func on_jump_timer_timeout() -> void:
 	ground_detection_enabled = true
@@ -101,18 +135,29 @@ func is_ground_detected() -> bool:
 			continue
 		if d.is_colliding():
 			var normal := d.get_collision_normal()
-			if normal.length() >= ground_normal_threshold:
+			if normal.y >= ground_normal_threshold:
 				return true
 			return false
 	return false
 
-func apply_knockback(direction: Vector3, damage: float) -> void:
+func get_ground_collider():
+	for d in detectors:
+		if d.is_colliding():
+			return d.get_collider()
+	var col := move_and_collide(Vector3.DOWN, true)
+	if not col:
+		return null
+	return col.get_collider()
+
+func apply_knockback(direction: Vector2, damage: float, base_knockback: float, knockback_scaling: float, hitstun_frames: float) -> void:
+	var knockback := base_knockback + (percent * knockback_scaling)
 	percent += damage
-	var knockback = combat_stats.base_knockback + percent * combat_stats.knockback_scaling
-	velocity = direction.normalized() * knockback
-	print(">> ", percent)
+	var dir_vel := direction.normalized() * knockback
+	velocity.x = dir_vel.x
+	velocity.y = dir_vel.y
 	
-	hitstun_timer = knockback * 0.05
+	current_state = State.HITSTUN
+	hitstun_timer = create_base_timer(max(((percent/100) + (hitstun_frames)), MIN_HITSTUN_FRAMES))
 
 func correct_mesh_orientation(dir: Vector3):
 	dir.y = 0
@@ -130,6 +175,9 @@ func apply_landing():
 		model_pivot.scale = Vector3(.8, 1.2, .8)
 
 	if not was_on_floor and on_floor:
+		if Input.is_action_pressed(input_config.down_action):
+			set_platform_collision(false)
+
 		model_pivot.scale = Vector3(1.2, 0.7, 1.2)
 
 	model_pivot.scale = model_pivot.scale.lerp(Vector3.ONE, 0.2)
@@ -138,7 +186,10 @@ func apply_landing():
 
 func try_attack() -> void:
 	if Input.is_action_just_pressed(input_config.attack_action):
-		hitbox.activate()
+		kill_hitbox.activate()
+	var y_right_axis := Input.get_joy_axis(input_config.device_id, JOY_AXIS_RIGHT_Y)
+	if sign(y_right_axis) < 0 and abs(y_right_axis) >= 0.85:
+		utilt_hitbox.activate()
 
 func try_fastfall() -> void:
 	if is_ground_detected():
@@ -147,6 +198,34 @@ func try_fastfall() -> void:
 	if input_buffer.consume(input_config.down_action) and velocity.y <= 0 and not is_fastfalling:
 		is_fastfalling = true
 
+func jumpsquat_state(input_dir: float, delta: float) -> void:
+	if Input.is_action_just_released(input_config.jump_action):
+		is_shorthopping = true
+	if input_buffer.consume("release %s".format([input_config.jump_action])):
+		is_shorthopping = true
+
+	jumpsquat_timer -= delta
+
+	model_pivot.scale = Vector3(1.2, 0.7, 1.2)
+
+	model_pivot.scale = model_pivot.scale.lerp(Vector3.ONE, 0.2)
+	if jumpsquat_timer <= 0:
+		if is_shorthopping:
+			velocity.y = movement_stats.jump_speed * movement_stats.shorthop_mult
+		else:
+			velocity.y = movement_stats.jump_speed
+		jump_timer.start()
+		current_state = State.IDLE
+		is_shorthopping = false
+		model_pivot.scale = Vector3(.8, 1.2, .8)
+
+
+func hitstun_state(_input_dir: float, delta: float) -> void:
+	hitstun_timer -= delta
+
+	if hitstun_timer <= 0:
+		current_state = State.IDLE
+
 func dash_state(input_dir: float, delta: float) -> void:
 	if not is_ground_detected():
 		current_state = State.IDLE
@@ -154,7 +233,11 @@ func dash_state(input_dir: float, delta: float) -> void:
 
 	dash_timer -= delta
 
-	if dash_timer <= 0 and input_dir == 0:
+	var direction := 0.0
+	if input_dir != 0:
+		direction = sign(input_dir)
+
+	if dash_timer <= 0 and direction == 0:
 		current_state = State.IDLE
 		return
 
@@ -162,22 +245,35 @@ func dash_state(input_dir: float, delta: float) -> void:
 	
 	# dash dancing
 	# reset timer, move to new direction
-	if input_dir != 0 and dash_timer > 0:
-		dash_timer = movement_stats.dash_time
-		dash_direction = sign(input_dir)
+
+	if direction != 0:
+		dash_timer = create_base_timer(movement_stats.dash_time_frames)
+		dash_direction = sign(direction)
 
 func idle_state(input_dir: float) -> void:
 	if input_dir != 0 and is_ground_detected():
 		current_state = State.DASH
-		dash_timer = movement_stats.dash_time
+		dash_timer = create_base_timer(movement_stats.dash_time_frames)
 		dash_direction = sign(input_dir)
 		velocity.x = dash_direction * movement_stats.dash_speed
-	
+
+func platdrop_state(input_dir: float, delta: float) -> void:
+	set_platform_collision(false)
+	platdrop_timer -= delta
+	if platdrop_timer <= 0:
+		set_platform_collision(true)
+		current_state = State.IDLE
+
+func apply_hitstun_gravity(delta: float) -> void:
+	var gravity := movement_stats.hitstun_gravity
+	velocity.y -= gravity * delta
+	move_and_slide()
+
 func apply_gravity(delta: float) -> void:
 	var gravity_up_final := movement_stats.gravity_up * movement_stats.gravity_up_mult
 	var gravity_down_final := movement_stats.gravity_down * movement_stats.gravity_down_mult
 	
-	if not is_ground_detected():
+	if not is_ground_detected() or current_state == State.PLATDROP:
 		if velocity.y > 0:
 			velocity.y -= gravity_up_final * delta
 		else:
@@ -190,9 +286,8 @@ func apply_gravity(delta: float) -> void:
 
 func try_jump() -> void:
 	if input_buffer.consume(input_config.jump_action) and is_ground_detected():
-		jump_timer.start()
-		ground_detection_enabled = false
-		velocity.y = movement_stats.jump_speed
+		current_state = State.JUMPSQUAT
+		jumpsquat_timer = create_base_timer(JUMPSQUAT_FRAMES)
 
 func handle_movement(input_dir: float, delta: float) -> void:
 	var accel: float
@@ -222,7 +317,7 @@ func apply_friction(input_dir: float, delta: float) -> void:
 	if input_dir != 0:
 		return
 
-	var horizontal_vel = Vector3(velocity.x, 0, velocity.z)
+	var horizontal_vel = Vector3(velocity.x, 0, 0)
 	if horizontal_vel.length() == 0:
 		return
 
@@ -235,9 +330,12 @@ func apply_friction(input_dir: float, delta: float) -> void:
 		horizontal_vel -= horizontal_vel.normalized() * friction_force
 
 	velocity.x = horizontal_vel.x
-	velocity.z = horizontal_vel.z
 
 func apply_slide(delta: float) -> void:
+	# no Z velocity allowed
+	if velocity.z != 0:
+		velocity.z = 0
+
 	var motion = velocity * delta
 	for i in max_slides:
 		var col := move_and_collide(motion, true)
@@ -248,7 +346,7 @@ func apply_slide(delta: float) -> void:
 		var normal := col.get_normal()
 		if abs(normal.x) >= wall_normal_threshold:
 			if is_platform(col.get_collider()):
-				set_collision_mask_value(3, false)
+				set_platform_collision(false)
 				is_beside_platform = true
 				motion = col.get_remainder()
 				move_and_collide(motion)
@@ -266,8 +364,24 @@ func apply_slide(delta: float) -> void:
 func is_platform(collider) -> bool:
 	return collider.get_collision_layer_value(PLATFORM_LAYER)
 
+func try_platdrop() -> void:
+	if is_ground_detected() and Input.is_action_pressed(input_config.down_action):
+		var collider = get_ground_collider()
+		if not collider:
+			return
+		
+		if is_platform(collider):
+			platdrop_timer = create_base_timer(PLATDROP_FRAMES)
+			current_state = State.PLATDROP
+
 func apply_platform_handling() -> void:
+	if current_state == State.PLATDROP:
+		return
+
 	if velocity.y <= 0 and not is_beside_platform:
-		set_collision_mask_value(PLATFORM_LAYER, true)
+		set_platform_collision(true)
 	else:
-		set_collision_mask_value(PLATFORM_LAYER, false)
+		set_platform_collision(false)
+
+func set_platform_collision(should: bool) -> void:
+	set_collision_mask_value(PLATFORM_LAYER, should)

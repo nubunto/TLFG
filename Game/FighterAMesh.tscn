@@ -1,5 +1,0 @@
-[gd_scene format=3 uid="uid://cqv4sxw0ort8w"]
-
-[ext_resource type="PackedScene" uid="uid://cau0nuqjdfcov" path="res://Game/FighterA.glb" id="1_t336n"]
-
-[node name="FighterAMesh" unique_id=58839265 instance=ExtResource("1_t336n")]

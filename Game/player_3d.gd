@@ -5,6 +5,7 @@ const MIN_HITSTUN_FRAMES = 5
 const BASE_TARGET_FPS = 60.0
 const JUMPSQUAT_FRAMES = 4
 const KO_RADIUS = 24
+const STICK_FLICK_THRESHOLD = .7
 
 func create_frame_timer(num_frames: float) -> float:
 	return num_frames / BASE_TARGET_FPS
@@ -16,6 +17,7 @@ enum State {
 	JUMPSQUAT,
 	PLATDROP,
 	ATTACK,
+	AIRDODGE,
 }
 
 enum Attack {
@@ -95,6 +97,12 @@ var attack_timer: float = 0.0
 var current_attack: Attack = Attack.Combo
 #endregion
 
+#region AIRDODGE variables
+var airdodge_timer: float = 0.0
+var can_airdodge: bool = true
+var airdodge_direction: Vector2 = Vector2.ZERO
+#endregion
+
 #region combat variables
 var percent: float = 0.0
 var current_stocks: int
@@ -120,6 +128,8 @@ func _unhandled_input(event: InputEvent) -> void:
 		input_buffer.press("release %s".format([input_config.jump_action]))
 	if event.is_action_pressed(input_config.down_action):
 		input_buffer.press(input_config.down_action)
+	if event.is_action_pressed(input_config.shield_action):
+		input_buffer.press(input_config.shield_action)
 
 func _physics_process(delta: float) -> void:
 	if is_in_hitlag():
@@ -128,39 +138,48 @@ func _physics_process(delta: float) -> void:
 
 	is_beside_platform = false
 	correct_mesh_orientation(velocity)
-	apply_platform_handling()
-	apply_landing()
-
-
-	var input_dir := Input.get_action_strength(input_config.right_action) - Input.get_action_strength(input_config.left_action)
+	var input_dir := input_config.get_input_vector()
 	match current_state:
 		State.IDLE:
-			idle_state(input_dir)
+			idle_state(input_dir.x, delta)
+
+			try_dash(input_dir.x)
 			try_attack()
 			try_fastfall()
 			try_platdrop()
-			handle_movement(input_dir, delta)
+			try_jump()
+			try_airdodge()
+
+			apply_gravity(delta)
+			apply_friction(input_dir.x, delta)
+			apply_slide(delta)
 		State.DASH:
-			dash_state(input_dir, delta)
+			dash_state(input_dir.x, delta)
 			try_attack()
 			try_jump()
 			try_platdrop()
 			apply_gravity(delta)
 			apply_slide(delta)
 		State.JUMPSQUAT:
-			jumpsquat_state(input_dir, delta)
+			jumpsquat_state(input_dir.x, delta)
 		State.PLATDROP:
-			platdrop_state(input_dir, delta)
+			platdrop_state(input_dir.x, delta)
 			apply_gravity(delta)
 			apply_slide(delta)
 		State.ATTACK:
 			attack_state(delta)
-			apply_friction(input_dir, delta)
+			apply_friction(input_dir.x, delta)
 			apply_gravity(delta)
 			apply_slide(delta)
+		State.AIRDODGE:
+			airdodge_state(delta)
+			apply_slide(delta)
 		State.HITSTUN:
-			hitstun_state(input_dir, delta)
+			hitstun_state(input_dir.x, delta)
 			apply_hitstun_gravity(delta)
+	
+	apply_platform_handling()
+	apply_landing()
 
 func on_jump_timer_timeout() -> void:
 	ground_detection_enabled = true
@@ -205,7 +224,9 @@ func correct_mesh_orientation(dir: Vector3):
 		var yaw := atan2(dir.x, -dir.z)
 		model_pivot.rotation.y = yaw
 
-func apply_landing():
+## returns true when just landed
+func apply_landing() -> bool:
+	var just_landed := false
 	var on_floor := is_ground_detected()
 	if on_floor:
 		is_fastfalling = false
@@ -215,14 +236,15 @@ func apply_landing():
 		model_pivot.scale = Vector3(.8, 1.2, .8)
 
 	if not was_on_floor and on_floor:
-		if Input.is_action_pressed(input_config.down_action):
-			set_platform_collision(false)
+		just_landed = true
+		can_airdodge = true
 
 		model_pivot.scale = Vector3(1.2, 0.7, 1.2)
 
 	model_pivot.scale = model_pivot.scale.lerp(Vector3.ONE, 0.2)
 
 	was_on_floor = on_floor
+	return just_landed
 
 func try_attack() -> void:
 	if current_state == State.ATTACK:
@@ -255,6 +277,9 @@ func jumpsquat_state(_input_dir: float, delta: float) -> void:
 		is_shorthopping = true
 	if input_buffer.consume("release %s".format([input_config.jump_action])):
 		is_shorthopping = true
+	
+	if Input.is_action_just_pressed(input_config.shield_action):
+		input_buffer.press(input_config.shield_action)
 
 	jumpsquat_timer -= delta
 
@@ -285,29 +310,26 @@ func dash_state(input_dir: float, delta: float) -> void:
 
 	dash_timer -= delta
 
-	var direction := 0.0
-	if input_dir != 0:
-		direction = sign(input_dir)
-
-	if dash_timer <= 0 and direction == 0:
+	if dash_timer <= 0:
 		current_state = State.IDLE
 		return
 
 	velocity.x = dash_direction * movement_stats.dash_speed
+
+func idle_state(input_dir: float, delta: float) -> void:
+	var accel: float
+	var max_speed: float
 	
-	# dash dancing
-	# reset timer, move to new direction
+	if is_ground_detected():
+		accel = movement_stats.ground_acceleration
+		max_speed = movement_stats.ground_horizontal_speed
+	else:
+		accel = movement_stats.air_acceleration
+		max_speed = movement_stats.air_max_speed
 
-	if direction != 0:
-		dash_timer = create_frame_timer(movement_stats.dash_time_frames)
-		dash_direction = sign(direction)
+	var target := input_dir * max_speed
+	velocity.x = move_toward(velocity.x, target, accel * delta)
 
-func idle_state(input_dir: float) -> void:
-	if input_dir != 0 and is_ground_detected():
-		current_state = State.DASH
-		dash_timer = create_frame_timer(movement_stats.dash_time_frames)
-		dash_direction = sign(input_dir)
-		velocity.x = dash_direction * movement_stats.dash_speed
 
 func attack_state(delta: float) -> void:
 	attack_timer -= delta
@@ -333,6 +355,41 @@ func platdrop_state(_input_dir: float, delta: float) -> void:
 		set_platform_collision(true)
 		current_state = State.IDLE
 
+func try_airdodge() -> void:
+	if not can_airdodge:
+		return
+	if is_ground_detected():
+		return
+
+	if not input_buffer.consume(input_config.shield_action):
+		return
+
+	airdodge_direction = input_config.get_input_vector()
+
+	current_state = State.AIRDODGE
+	airdodge_timer = create_frame_timer(movement_stats.airdodge_duration_frames)
+	velocity.x = movement_stats.airdodge_speed * airdodge_direction.x
+	velocity.y = movement_stats.airdodge_speed * airdodge_direction.y
+	can_airdodge = false
+
+
+func airdodge_state(delta: float) -> void:
+	airdodge_timer -= delta
+	var airdodge_speed := airdodge_direction * movement_stats.airdodge_speed
+	if airdodge_timer <= 0.0:
+		current_state = State.IDLE
+		return
+	
+	# keep horizontal momentum?
+	if not was_on_floor and (is_ground_detected() or input_buffer.consume(input_config.shield_action)):
+		velocity.x = airdodge_speed.x
+		current_state = State.IDLE
+		if is_ground_detected():
+			can_airdodge = true
+
+		return
+
+
 func apply_hitstun_gravity(delta: float) -> void:
 	var gravity := movement_stats.gravity_down * movement_stats.hitstun_gravity
 	velocity.y -= gravity * delta
@@ -357,27 +414,6 @@ func try_jump() -> void:
 	if input_buffer.consume(input_config.jump_action) and is_ground_detected():
 		current_state = State.JUMPSQUAT
 		jumpsquat_timer = create_frame_timer(JUMPSQUAT_FRAMES)
-
-func handle_movement(input_dir: float, delta: float) -> void:
-	var accel: float
-	var max_speed: float
-	
-	if is_ground_detected():
-		accel = movement_stats.ground_acceleration
-		max_speed = movement_stats.ground_horizontal_speed
-	else:
-		accel = movement_stats.air_acceleration
-		max_speed = movement_stats.air_max_speed
-
-	var target = input_dir * max_speed
-	velocity.x = move_toward(velocity.x, target, accel * delta)
-
-	apply_gravity(delta)
-
-	try_jump()
-	
-	apply_friction(input_dir, delta)
-	apply_slide(delta)
 
 func apply_friction(input_dir: float, delta: float) -> void:
 	if not is_ground_detected():
@@ -447,6 +483,13 @@ func try_platdrop() -> void:
 		if is_platform(collider):
 			platdrop_timer = create_frame_timer(movement_stats.min_platdrop_frames)
 			current_state = State.PLATDROP
+
+func try_dash(input_dir: float) -> void:
+	if abs(input_dir) >= STICK_FLICK_THRESHOLD and is_ground_detected():
+		current_state = State.DASH
+		dash_timer = create_frame_timer(movement_stats.dash_time_frames)
+		dash_direction = sign(input_dir)
+		velocity.x = dash_direction * movement_stats.dash_speed
 
 func apply_platform_handling() -> void:
 	if current_state == State.PLATDROP:

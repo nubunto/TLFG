@@ -1,0 +1,130 @@
+[gd_scene format=3 uid="uid://dbb8lppapxn4h"]
+
+[ext_resource type="PackedScene" uid="uid://c247tsajqtpjg" path="res://ecb_controller.tscn" id="1_34ebv"]
+[ext_resource type="Script" uid="uid://bwg2hksq43ewn" path="res://Game/player_input.gd" id="2_w3vdn"]
+[ext_resource type="Script" uid="uid://bghanwkpn80wc" path="res://Game/movement_stats.gd" id="3_4m1os"]
+[ext_resource type="Script" uid="uid://ck7y4y0rajyqc" path="res://Game/input_buffer.gd" id="3_lc251"]
+
+[sub_resource type="ProceduralSkyMaterial" id="ProceduralSkyMaterial_ao5by"]
+sky_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+ground_horizon_color = Color(0.66224277, 0.6717428, 0.6867428, 1)
+
+[sub_resource type="Sky" id="Sky_34ebv"]
+sky_material = SubResource("ProceduralSkyMaterial_ao5by")
+
+[sub_resource type="Environment" id="Environment_w3vdn"]
+background_mode = 2
+sky = SubResource("Sky_34ebv")
+tonemap_mode = 2
+glow_enabled = true
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_4m1os"]
+size = Vector2(30, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_lc251"]
+size = Vector3(30, 0.01, 1.021)
+
+[sub_resource type="PlaneMesh" id="PlaneMesh_34ebv"]
+size = Vector2(5, 1)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_w3vdn"]
+size = Vector3(5.0429077, 0.001, 1.021)
+
+[sub_resource type="Resource" id="Resource_4m1os"]
+script = ExtResource("2_w3vdn")
+down_action = "p1_down"
+up_action = "p1_up"
+left_action = "p1_left"
+right_action = "p1_right"
+jump_action = "p1_jump"
+attack_action = "p1_attack"
+shield_action = "p1_shield"
+metadata/_custom_type_script = "uid://bwg2hksq43ewn"
+
+[sub_resource type="Resource" id="Resource_uw1u3"]
+script = ExtResource("3_lc251")
+metadata/_custom_type_script = "uid://ck7y4y0rajyqc"
+
+[sub_resource type="Resource" id="Resource_lc251"]
+script = ExtResource("3_4m1os")
+ground_horizontal_speed = 12.0
+ground_friction = 30.0
+ground_acceleration = 9.0
+dash_speed = 6.0
+dash_time_frames = 4.0
+air_friction = 6.0
+air_max_speed = 8.0
+air_acceleration = 8.0
+airdodge_speed = 8.0
+airdodge_duration_frames = 10
+jump_height = 5.0
+time_to_apex = 0.8
+gravity_up_mult = 1.0
+gravity_down_mult = 1.0
+fastfall_mult = 1.8
+fall_gravity_mult = 1.0
+shorthop_mult = 0.6
+hitstun_gravity = 1.0
+metadata/_custom_type_script = "uid://bghanwkpn80wc"
+
+[sub_resource type="ImmediateMesh" id="ImmediateMesh_4m1os"]
+
+[node name="ECBExperiment" type="Node3D" unique_id=476284483]
+
+[node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=47841865]
+environment = SubResource("Environment_w3vdn")
+
+[node name="DirectionalLight3D" type="DirectionalLight3D" parent="." unique_id=1517573478]
+transform = Transform3D(-0.8660254, -0.43301278, 0.25, 0, 0.49999997, 0.86602545, -0.50000006, 0.75, -0.43301266, 0, 0, 0)
+shadow_enabled = true
+
+[node name="Floor" type="StaticBody3D" parent="." unique_id=673275290]
+collision_mask = 0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="Floor" unique_id=305810659]
+mesh = SubResource("PlaneMesh_4m1os")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="Floor" unique_id=1970184191]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.79876447, 0, -0.016967773)
+shape = SubResource("BoxShape3D_lc251")
+
+[node name="plat1" type="StaticBody3D" parent="." unique_id=1371729867]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.315923, 1.6262088, 0)
+collision_layer = 4
+collision_mask = 0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="plat1" unique_id=287475071]
+mesh = SubResource("PlaneMesh_34ebv")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="plat1" unique_id=1488355584]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0057041645, 0, -0.016967773)
+shape = SubResource("BoxShape3D_w3vdn")
+
+[node name="plat2" type="StaticBody3D" parent="." unique_id=1028725223]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.9823575, 1.6262088, 0)
+collision_layer = 4
+collision_mask = 0
+
+[node name="MeshInstance3D" type="MeshInstance3D" parent="plat2" unique_id=2005953906]
+mesh = SubResource("PlaneMesh_34ebv")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="plat2" unique_id=2070403921]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.0057041645, 0, -0.016967773)
+shape = SubResource("BoxShape3D_w3vdn")
+
+[node name="Camera3D" type="Camera3D" parent="." unique_id=315338637]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5226479, 4.538158)
+
+[node name="ECBController" parent="." unique_id=830905785 instance=ExtResource("1_34ebv")]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.003, 2.323676, -0.017)
+half_width = 0.3
+half_height = 0.6
+one_way_collision_mask = 4
+one_way_landing_tolerance = null
+player_input = SubResource("Resource_4m1os")
+input_buffer = SubResource("Resource_uw1u3")
+movement_stats = SubResource("Resource_lc251")
+stick_flick_threshold = null
+
+[node name="ECBDebug" type="MeshInstance3D" parent="ECBController" unique_id=2050728388]
+mesh = SubResource("ImmediateMesh_4m1os")

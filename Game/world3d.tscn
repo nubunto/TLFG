@@ -38,12 +38,14 @@ size = Vector3(2.9941406, 0.01, 1)
 script = ExtResource("2_hk4ix")
 ground_horizontal_speed = 10.0
 ground_friction = 25.0
-ground_acceleration = 30.0
-dash_speed = 8.0
+ground_acceleration = 25.0
+dash_speed = 5.0
 dash_time_frames = 12.0
 air_friction = 2.0
 air_max_speed = 7.0
 air_acceleration = 8.0
+airdodge_speed = 10.0
+airdodge_duration_frames = 9
 jump_height = 4.0
 time_to_apex = 0.5
 gravity_up_mult = 1.0
@@ -60,11 +62,13 @@ metadata/_custom_type_script = "uid://g1ffjnlypcta"
 
 [sub_resource type="Resource" id="Resource_djclg"]
 script = ExtResource("3_djclg")
-left_action = "p1_move_left"
-right_action = "p1_move_right"
+down_action = "p1_down"
+up_action = "p1_up"
+left_action = "p1_left"
+right_action = "p1_right"
 jump_action = "p1_jump"
 attack_action = "p1_attack"
-down_action = "p1_down"
+shield_action = "p1_shield"
 metadata/_custom_type_script = "uid://bwg2hksq43ewn"
 
 [sub_resource type="Resource" id="Resource_52ge5"]
@@ -74,13 +78,15 @@ metadata/_custom_type_script = "uid://ck7y4y0rajyqc"
 [sub_resource type="Resource" id="Resource_eh1or"]
 script = ExtResource("2_hk4ix")
 ground_horizontal_speed = 12.0
-ground_friction = 30.0
-ground_acceleration = 5.0
+ground_friction = 60.0
+ground_acceleration = 25.0
 dash_speed = 6.0
 dash_time_frames = 12.0
 air_friction = 4.0
 air_max_speed = 7.0
 air_acceleration = 5.0
+airdodge_speed = 8.0
+airdodge_duration_frames = 15
 jump_height = 4.0
 time_to_apex = 0.7
 gravity_up_mult = 1.0
@@ -99,11 +105,13 @@ metadata/_custom_type_script = "uid://g1ffjnlypcta"
 [sub_resource type="Resource" id="Resource_hk4ix"]
 script = ExtResource("3_djclg")
 device_id = 0
-left_action = "p2_move_left"
-right_action = "p2_move_right"
+down_action = "p2_down"
+up_action = "p2_up"
+left_action = "p2_left"
+right_action = "p2_right"
 jump_action = "p2_jump"
 attack_action = "p2_attack"
-down_action = "p2_down"
+shield_action = "p2_shield"
 metadata/_custom_type_script = "uid://bwg2hksq43ewn"
 
 [sub_resource type="Resource" id="Resource_77ass"]

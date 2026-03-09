@@ -1,0 +1,16 @@
+[gd_scene format=3 uid="uid://c247tsajqtpjg"]
+
+[ext_resource type="Script" uid="uid://buxlo6bevcggw" path="res://Game/ECBController.gd" id="1_mpxdo"]
+
+[sub_resource type="ImmediateMesh" id="ImmediateMesh_c8fv4"]
+
+[sub_resource type="ImmediateMesh" id="ImmediateMesh_mpxdo"]
+
+[node name="ECBController" type="Node3D" unique_id=830905785]
+script = ExtResource("1_mpxdo")
+
+[node name="ECBDebug" type="MeshInstance3D" parent="." unique_id=516910838]
+mesh = SubResource("ImmediateMesh_c8fv4")
+
+[node name="@MeshInstance3D@228323" type="MeshInstance3D" parent="." unique_id=1492847010]
+mesh = SubResource("ImmediateMesh_mpxdo")

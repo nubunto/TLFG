@@ -15,8 +15,11 @@ extends Resource
 @export var air_max_speed: float
 @export var air_acceleration: float
 @export var ledge_assist_speed: float
+@export var airdodge_speed: float
+@export var airdodge_duration_frames: int
 
 @export_group("Jump")
+@export var jumpsquat_frames: int = 4
 @export var jump_height: float
 @export var time_to_apex: float
 @export var gravity_up_mult: float

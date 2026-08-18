@@ -25,7 +25,7 @@ wall_normal_threshold = 0.45
 [node name="ModelPivot" type="Node3D" parent="." unique_id=1398399162]
 
 [node name="Kill" parent="ModelPivot" unique_id=385731670 node_paths=PackedStringArray("attacker") instance=ExtResource("3_1wvhu")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0.47472388, 0.4553426)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0.47472388, 0.5148867)
 collision_mask = 8
 damage = 5.0
 launch_angle_deg = 40.0
@@ -38,7 +38,7 @@ transform = Transform3D(1, 0, 0, 0, -4.371139e-08, -1, 0, 1, -4.371139e-08, 0, 0
 shape = SubResource("CapsuleShape3D_101xu")
 
 [node name="Combo" parent="ModelPivot" unique_id=13782974 node_paths=PackedStringArray("attacker") instance=ExtResource("3_1wvhu")]
-transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0.73168933, -0.0024617314)
+transform = Transform3D(-4.371139e-08, 0, 1, 0, 1, 0, -1, 0, -4.371139e-08, 0, 0.73168933, 0.10100508)
 collision_mask = 8
 damage = 2.0
 launch_angle_deg = 87.0

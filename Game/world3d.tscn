@@ -28,7 +28,7 @@ albedo_color = Color(1, 0.43529412, 0.33333334, 1)
 size = Vector3(3, 0.6, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_l2uqb"]
-size = Vector3(3, 0.01, 1)
+size = Vector3(3, 0, 1)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_77ass"]
 margin = 0.002
@@ -187,9 +187,9 @@ material_override = null
 
 [node name="Blastzone" type="Node3D" parent="." unique_id=83260460]
 script = ExtResource("6_l2uqb")
-half_width = 40.0
-half_height = 20.0
-ko_margin = 4.0
+half_width = 36.65
+half_height = 15.58
+ko_margin = 7.285
 
 [node name="SpawnPoint" type="Marker3D" parent="." unique_id=860391211]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 6.363641, 0)

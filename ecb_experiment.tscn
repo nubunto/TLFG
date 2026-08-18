@@ -58,7 +58,7 @@ air_max_speed = 8.0
 air_acceleration = 8.0
 airdodge_speed = 12.0
 airdodge_duration_frames = 10
-jump_height = 8.0
+jump_height = 7.0
 time_to_apex = 0.8
 gravity_up_mult = 1.0
 gravity_down_mult = 1.0
@@ -75,6 +75,8 @@ metadata/_custom_type_script = "uid://bghanwkpn80wc"
 [sub_resource type="ImmediateMesh" id="ImmediateMesh_1tx0v"]
 
 [sub_resource type="ImmediateMesh" id="ImmediateMesh_tqh2a"]
+
+[sub_resource type="ImmediateMesh" id="ImmediateMesh_y8pej"]
 
 [sub_resource type="Resource" id="Resource_ql5qm"]
 script = ExtResource("2_w3vdn")
@@ -124,6 +126,8 @@ metadata/_custom_type_script = "uid://bghanwkpn80wc"
 
 [sub_resource type="ImmediateMesh" id="ImmediateMesh_sapgt"]
 
+[sub_resource type="ImmediateMesh" id="ImmediateMesh_ct7go"]
+
 [node name="ECBExperiment" type="Node3D" unique_id=476284483]
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=47841865]
@@ -171,7 +175,7 @@ shape = SubResource("BoxShape3D_w3vdn")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.5226479, 4.538158)
 
 [node name="ECBController" parent="." unique_id=830905785 instance=ExtResource("1_34ebv")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.003, 2.323676, -0.017)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.0522511, 2.323676, -0.017)
 half_width = 0.25
 half_height = 0.825
 one_way_collision_mask = 4
@@ -194,8 +198,11 @@ mesh = SubResource("ImmediateMesh_tqh2a")
 [node name="FighterA" parent="ECBController" unique_id=1355208144 instance=ExtResource("5_uw1u3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2.0954758e-08, -0.8281996, 0)
 
+[node name="@MeshInstance3D@18781" type="MeshInstance3D" parent="ECBController" unique_id=902309463]
+mesh = SubResource("ImmediateMesh_y8pej")
+
 [node name="ECBController_P2" parent="." unique_id=1998808197 instance=ExtResource("1_34ebv")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2.7136528, 2.323676, -0.017)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 3.937711, 2.323676, -0.017)
 half_width = 0.25
 half_height = 0.825
 one_way_collision_mask = 4
@@ -221,5 +228,8 @@ mesh = SubResource("ImmediateMesh_sapgt")
 
 [node name="FighterA2" parent="ECBController_P2" unique_id=694849662 instance=ExtResource("5_uw1u3")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, -0.80820537, 0)
+
+[node name="@MeshInstance3D@18783" type="MeshInstance3D" parent="ECBController_P2" unique_id=1007233106]
+mesh = SubResource("ImmediateMesh_ct7go")
 
 [editable path="ECBController_P2"]
